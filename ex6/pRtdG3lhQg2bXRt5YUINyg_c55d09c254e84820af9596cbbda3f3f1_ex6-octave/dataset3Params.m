@@ -23,11 +23,20 @@ sigma = 0.3;
 %        mean(double(predictions ~= yval))
 %
 
-
-
-
-
-
+para_test = [0.01; 0.03; 0.1; 0.3; 1; 3; 10; 30];   % 测试参数
+min_error = Inf;    % 用于记录最小误差
+for i = 1 : length(para_test)
+    for j = 1 : length(para_test)
+        model = svmTrain(X, y, para_test(i), @(x1, x2) gaussianKernel(x1, x2, para_test(j)));   %选取C和sigma用训练集训练
+        predictions = svmPredict(model, Xval);   % 用交叉验证集预测
+        judge_error = mean(double(predictions ~= yval));    % 用于计算误差,若预测集和真实集则为1，否则为0
+        if judge_error < min_error            % 选取出错结果最少的参数C和sigma
+            min_error = judge_error;
+            C = para_test(i);
+            sigma = para_test(j);
+        end
+    end
+end
 
 % =========================================================================
 
